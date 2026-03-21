@@ -1,0 +1,22 @@
+{
+  "name": "digitale-solution",
+  "version": "1.0.0",
+  "description": "Site web DIGITALE SOLUTION – Solutions Digitales Ouagadougou, Burkina Faso",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "dev": "serve . --listen 3000"
+  },
+  "keywords": [
+    "digitale-solution",
+    "pos",
+    "burkina-faso",
+    "ouagadougou",
+    "digital"
+  ],
+  "author": "DIGITALE SOLUTION",
+  "license": "ISC",
+  "devDependencies": {
+    "serve": "^14.2.0"
+  }
+}
