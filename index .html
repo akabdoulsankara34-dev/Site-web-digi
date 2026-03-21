@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DIGITALE SOLUTION – Solutions Digitales · Ouagadougou</title>
+<meta name="description" content="POS, Facturation digitale, Menu QR, Suivi livreur & Apps sur mesure à Ouagadougou, Burkina Faso."/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg:#080c10;--bg2:#0d1117;--card:#111820;--border:#1e2a38;
+  --green:#00e676;--green2:#00bfa5;--gold:#ffb300;
+  --white:#f0f4f8;--muted:#6b7a90;--radius:16px;
+}
+body.light{
+  --bg:#f4f7fb;--bg2:#edf1f7;--card:#ffffff;--border:#d8e0ea;
+  --white:#111820;--muted:#5a6a80;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--white);font-family:'Plus Jakarta Sans',sans-serif;overflow-x:hidden;transition:background .4s,color .4s}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.35}
+
+/* ─ CURSOR ─ */
+.cursor{position:fixed;width:16px;height:16px;border-radius:50%;background:var(--green);opacity:.7;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s,opacity .2s;mix-blend-mode:screen}
+.cursor-ring{position:fixed;width:38px;height:38px;border-radius:50%;border:1.5px solid rgba(0,230,118,.5);pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:transform .12s,left .08s,top .08s}
+body.light .cursor{mix-blend-mode:multiply;background:var(--green2)}
+
+/* ─ ANNONCE BAR ─ */
+#announce-bar{background:linear-gradient(90deg,var(--green2),var(--green));color:#000;text-align:center;padding:10px 40px;font-size:.82rem;font-weight:700;position:relative;z-index:200;letter-spacing:.03em}
+#announce-bar a{color:#000;text-decoration:underline}
+#announce-close{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:1.1rem;cursor:pointer;color:#000}
+
+/* ─ PROGRESS ─ */
+#progress-bar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--green),var(--green2));z-index:9999;transition:width .1s;width:0;pointer-events:none}
+
+/* ─ TOAST ─ */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--card);border:1px solid var(--border);border-radius:50px;padding:12px 24px;font-size:.88rem;font-weight:600;z-index:9998;transition:transform .4s;white-space:nowrap;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:#ff5252;color:#ff5252}
+
+/* ─ LOADER ─ */
+#loader{position:fixed;inset:0;background:var(--bg);z-index:9990;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .6s,visibility .6s}
+#loader.hide{opacity:0;visibility:hidden}
+.ldr-logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.6rem;letter-spacing:.06em}
+.ldr-logo span{color:var(--green)}
+.ldr-bar{width:200px;height:3px;background:var(--border);border-radius:3px;overflow:hidden}
+.ldr-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));width:0;animation:ld 2s ease forwards}
+@keyframes ld{0%{width:0}60%{width:72%}100%{width:100%}}
+.ldr-pct{font-size:.8rem;color:var(--muted)}
+
+/* ─ NAV ─ */
+nav{position:fixed;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 5%;background:rgba(8,12,16,.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);transition:padding .3s,background .4s}
+body.light nav{background:rgba(244,247,251,.92)}
+nav.scrolled{padding:11px 5%}
+.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:1.1rem;letter-spacing:.04em;display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--white)}
+.logo-dot{width:10px;height:10px;background:var(--green);border-radius:50%;box-shadow:0 0 12px var(--green);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.45)}}
+.nav-links{display:flex;gap:22px;list-style:none;align-items:center}
+.nav-links a{font-size:.8rem;font-weight:500;color:var(--muted);text-decoration:none;letter-spacing:.04em;text-transform:uppercase;transition:color .2s}
+.nav-links a:hover,.nav-links a.active-nav{color:var(--green)}
+.nav-cta{background:var(--green)!important;color:#000!important;padding:8px 20px!important;border-radius:50px!important;font-weight:700!important}
+.nav-tools{display:flex;align-items:center;gap:10px}
+.theme-btn{width:36px;height:36px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--white);cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.theme-btn:hover{background:rgba(0,230,118,.15)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none;padding:4px}
+.hamburger span{display:block;width:24px;height:2px;background:var(--white);border-radius:2px;transition:all .3s}
+.hamburger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+.mobile-menu{display:none;position:fixed;top:60px;left:0;right:0;background:rgba(8,12,16,.98);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:24px 5%;flex-direction:column;gap:14px;z-index:99}
+.mobile-menu.open{display:flex}
+.mobile-menu a{font-size:1rem;color:var(--white);text-decoration:none;padding:8px 0;border-bottom:1px solid var(--border)}
+
+/* ─ HERO ─ */
+#hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:130px 5% 80px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;width:600px;height:600px;border-radius:50%;pointer-events:none}
+.hero-glow.g1{top:-200px;left:-100px;background:radial-gradient(circle,rgba(0,230,118,.13) 0%,transparent 70%)}
+.hero-glow.g2{bottom:-200px;right:-100px;background:radial-gradient(circle,rgba(255,179,0,.08) 0%,transparent 70%)}
+#particles-canvas{position:absolute;inset:0;pointer-events:none;z-index:0}
+.hero-content{position:relative;z-index:1}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);color:var(--green);padding:6px 16px;border-radius:50px;font-size:.77rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;margin-bottom:28px;animation:fu .6s ease both}
+h1{font-family:'Syne',sans-serif;font-size:clamp(2.1rem,6vw,5rem);font-weight:800;line-height:1.05;letter-spacing:-.02em;margin-bottom:24px;animation:fu .7s .1s ease both}
+.tw{color:var(--green);border-right:3px solid var(--green);padding-right:4px}
+.hero-sub{max-width:560px;font-size:1.05rem;color:var(--muted);line-height:1.7;margin-bottom:40px;animation:fu .7s .2s ease both}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fu .7s .3s ease both}
+.btn-primary{background:var(--green);color:#000;padding:14px 30px;border-radius:50px;font-weight:700;font-size:.93rem;text-decoration:none;transition:all .25s;box-shadow:0 0 28px rgba(0,230,118,.3);display:inline-flex;align-items:center;gap:8px;border:none;cursor:pointer;font-family:inherit}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(0,230,118,.5)}
+.btn-secondary{background:transparent;color:var(--white);padding:14px 30px;border-radius:50px;font-weight:600;font-size:.93rem;text-decoration:none;border:1px solid var(--border);transition:all .25s;display:inline-flex;align-items:center;gap:8px;cursor:pointer;font-family:inherit}
+.btn-secondary:hover{border-color:var(--green);color:var(--green)}
+.hero-stats{display:flex;gap:44px;flex-wrap:wrap;justify-content:center;margin-top:60px;animation:fu .7s .4s ease both}
+.stat{text-align:center}
+.stat-num{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;color:var(--green)}
+.stat-label{font-size:.78rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-top:4px}
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;animation:fu 1s 1s ease both;opacity:.6;z-index:1}
+.scroll-mouse{width:22px;height:34px;border:2px solid var(--border);border-radius:12px;display:flex;justify-content:center;padding-top:5px}
+.scroll-wheel{width:4px;height:8px;background:var(--green);border-radius:2px;animation:sw 1.8s infinite}
+@keyframes sw{0%{transform:translateY(0);opacity:1}100%{transform:translateY(12px);opacity:0}}
+.scroll-hint span{font-size:.7rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* ─ TICKER ─ */
+.ticker-wrap{background:rgba(0,230,118,.06);border-top:1px solid rgba(0,230,118,.15);border-bottom:1px solid rgba(0,230,118,.15);overflow:hidden;padding:11px 0;position:relative;z-index:1}
+.ticker-inner{display:flex;white-space:nowrap;animation:tick 28s linear infinite}
+.ticker-item{display:inline-flex;align-items:center;gap:8px;padding:0 30px;font-size:.8rem;color:var(--muted);font-weight:500}
+.ticker-item .dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0}
+@keyframes tick{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ─ GLOBAL SECTIONS ─ */
+section{padding:96px 5%;position:relative}
+.section-tag{display:inline-block;background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--green);padding:4px 14px;border-radius:50px;font-size:.74rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}
+h2{font-family:'Syne',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;letter-spacing:-.02em;line-height:1.1;margin-bottom:14px}
+.section-desc{color:var(--muted);font-size:.98rem;line-height:1.7;max-width:540px}
+@keyframes fu{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ─ SERVICES ─ */
+#services{background:var(--bg2)}
+.srv-header{text-align:center;margin-bottom:56px}
+.srv-header .section-desc{margin:0 auto}
+.srv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:22px;max-width:1200px;margin:0 auto}
+.srv-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:30px;transition:transform .3s,border-color .3s,box-shadow .3s;position:relative;overflow:hidden}
+.srv-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--green),var(--green2));transform:scaleX(0);transform-origin:left;transition:transform .35s}
+.srv-card:hover{transform:translateY(-6px);border-color:rgba(0,230,118,.3);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.srv-card:hover::before{transform:scaleX(1)}
+.srv-icon{width:50px;height:50px;border-radius:12px;background:rgba(0,230,118,.1);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:18px}
+.srv-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:9px}
+.srv-desc{font-size:.88rem;color:var(--muted);line-height:1.65;margin-bottom:18px}
+.plans-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px}
+.pb{padding:3px 11px;border-radius:50px;font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.pb.start{background:rgba(107,122,144,.15);color:var(--muted);border:1px solid var(--border)}
+.pb.standard{background:rgba(0,191,165,.12);color:var(--green2);border:1px solid rgba(0,191,165,.25)}
+.pb.premium{background:rgba(255,179,0,.12);color:var(--gold);border:1px solid rgba(255,179,0,.25)}
+.demo-btn{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;color:var(--green);font-weight:600;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;transition:gap .2s}
+.demo-btn:hover{gap:10px}
+
+/* ─ DEMO MODAL ─ */
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;visibility:hidden;transition:all .3s}
+.modal-ov.open{opacity:1;visibility:visible}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:24px;width:100%;max-width:840px;max-height:90vh;overflow-y:auto;transform:translateY(20px) scale(.97);transition:transform .3s}
+.modal-ov.open .modal-box{transform:none}
+.modal-head{padding:26px 30px 0;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.modal-head h3{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800}
+.modal-close{width:34px;height:34px;border-radius:50%;background:var(--border);border:none;color:var(--white);font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.modal-close:hover{background:rgba(255,255,255,.15)}
+.modal-body{padding:22px 30px 30px}
+.demo-tabs{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:22px}
+.dtab{padding:7px 17px;border-radius:50px;background:var(--bg2);border:1px solid var(--border);color:var(--muted);font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.dtab.active{background:var(--green);color:#000;border-color:var(--green)}
+.dscr{display:none;animation:fu .3s ease both}
+.dscr.active{display:block}
+.mockup{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:18px;min-height:240px}
+.mbar{display:flex;align-items:center;gap:7px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.mdot{width:9px;height:9px;border-radius:50%}
+.murl{flex:1;background:var(--border);border-radius:4px;height:18px}
+/* POS */
+.pos-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.pos-item{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:11px;cursor:pointer;transition:all .2s;text-align:center}
+.pos-item:hover{border-color:var(--green);transform:scale(1.03)}
+.pi-name{font-size:.8rem;font-weight:600;margin-bottom:3px}
+.pi-price{font-size:.75rem;color:var(--green)}
+.pos-cart{background:var(--card);border:1px solid var(--border);border-radius:9px;padding:13px;margin-top:9px}
+.pc-title{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px}
+.pc-item{display:flex;justify-content:space-between;font-size:.78rem;padding:5px 0;border-bottom:1px solid var(--border)}
+.pc-total{display:flex;justify-content:space-between;font-weight:700;font-size:.86rem;padding-top:7px;color:var(--green)}
+/* Invoice */
+.inv-prev{background:#fff;color:#111;border-radius:9px;padding:16px;font-size:.76rem}
+.inv-hd{display:flex;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid #00e676}
+.inv-title{font-weight:800;font-size:.95rem;color:#00a855}
+.inv-meta{font-size:.68rem;color:#666}
+.inv-tbl{width:100%;border-collapse:collapse;margin-bottom:10px}
+.inv-tbl th{background:#f5f5f5;padding:5px 7px;text-align:left;font-size:.68rem;font-weight:700}
+.inv-tbl td{padding:5px 7px;border-bottom:1px solid #eee;font-size:.7rem}
+.inv-tot{text-align:right;font-weight:800;color:#00a855}
+/* Livreur */
+.lv-map{background:linear-gradient(135deg,#0a1628,#0d2040);border-radius:9px;height:130px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;margin-bottom:10px}
+.lv-route{position:absolute;width:70%;height:2px;background:linear-gradient(90deg,var(--green),transparent);top:50%;animation:ra 2.5s infinite}
+@keyframes ra{0%{opacity:.3;width:10%}100%{opacity:1;width:70%}}
+.lv-icon{font-size:2rem;animation:lm 3s ease-in-out infinite alternate;position:relative;z-index:1}
+@keyframes lm{0%{transform:translateX(-55px)}100%{transform:translateX(55px)}}
+.lv-rows{display:flex;flex-direction:column;gap:7px}
+.lv-row{display:flex;align-items:center;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:7px;padding:8px 11px}
+.lv-dot-live{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;flex-shrink:0}
+.lv-txt{font-size:.78rem;flex:1}
+.lv-time{font-size:.72rem;color:var(--muted)}
+/* Menu */
+.mnu-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.mnu-item{background:var(--card);border:1px solid var(--border);border-radius:9px;overflow:hidden;cursor:pointer;transition:transform .2s}
+.mnu-item:hover{transform:scale(1.04)}
+.mnu-thumb{height:56px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:rgba(0,230,118,.05)}
+.mnu-info{padding:6px}
+.mnu-name{font-size:.74rem;font-weight:700;margin-bottom:2px}
+.mnu-price{font-size:.7rem;color:var(--green)}
+/* Features */
+.dfeat{display:flex;gap:7px;flex-wrap:wrap;margin-top:9px}
+.dft{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.2);color:var(--green);padding:3px 11px;border-radius:50px;font-size:.72rem;font-weight:600}
+.ddesc{color:var(--muted);font-size:.86rem;line-height:1.65}
+.dcta{margin-top:16px;display:flex;gap:10px;flex-wrap:wrap}
+
+/* ─ QUIZ ─ */
+#quiz{background:var(--bg)}
+.quiz-wrap{max-width:700px;margin:0 auto;background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px;text-align:center}
+.quiz-q{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:24px;line-height:1.4}
+.quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.qopt{padding:14px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;cursor:pointer;font-size:.9rem;font-weight:500;transition:all .2s;font-family:inherit;color:var(--white);text-align:left}
+.qopt:hover{border-color:var(--green);background:rgba(0,230,118,.06)}
+.qopt.sel{border-color:var(--green);background:rgba(0,230,118,.1);color:var(--green);font-weight:700}
+.quiz-prog{display:flex;gap:6px;justify-content:center;margin-bottom:24px}
+.qp-dot{width:8px;height:8px;border-radius:50%;background:var(--border);transition:background .3s}
+.qp-dot.done{background:var(--green)}
+.quiz-result{display:none;animation:fu .4s ease both}
+.qr-badge{font-size:2.5rem;margin-bottom:12px}
+.qr-plan{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;margin-bottom:8px}
+.qr-desc{color:var(--muted);font-size:.9rem;line-height:1.65;margin-bottom:24px}
+.quiz-back{background:none;border:none;color:var(--muted);font-size:.82rem;cursor:pointer;font-family:inherit;text-decoration:underline;margin-top:10px}
+.quiz-skip{display:flex;justify-content:space-between;align-items:center;margin-top:12px}
+.q-step{font-size:.78rem;color:var(--muted)}
+
+/* ─ ROI CALC ─ */
+#roi{background:var(--bg2)}
+.roi-wrap{max-width:900px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.roi-left h2{margin-bottom:10px}
+.roi-left p{color:var(--muted);line-height:1.7;margin-bottom:28px}
+.roi-sliders{display:flex;flex-direction:column;gap:20px}
+.roi-row label{display:flex;justify-content:space-between;font-size:.85rem;font-weight:600;margin-bottom:7px}
+.roi-row label span{color:var(--green);font-family:'Syne',sans-serif}
+.roi-row input[type=range]{width:100%;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--border);outline:none;cursor:pointer}
+.roi-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--green);cursor:pointer;box-shadow:0 0 8px rgba(0,230,118,.5)}
+.roi-right{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center}
+.roi-num{font-family:'Syne',sans-serif;font-size:3rem;font-weight:800;color:var(--green);margin-bottom:8px}
+.roi-sub{font-size:.85rem;color:var(--muted);line-height:1.6;margin-bottom:24px}
+.roi-breakdown{display:flex;flex-direction:column;gap:10px;text-align:left}
+.roi-br-row{display:flex;justify-content:space-between;font-size:.84rem;padding:8px 0;border-bottom:1px solid var(--border)}
+.roi-br-row:last-child{border-bottom:none;font-weight:700}
+.roi-br-row span:last-child{color:var(--green)}
+
+/* ─ PORTFOLIO ─ */
+#portfolio{background:var(--bg)}
+.port-header{text-align:center;margin-bottom:52px}
+.port-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;max-width:1100px;margin:0 auto}
+.port-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:transform .3s,box-shadow .3s;cursor:pointer}
+.port-card:hover{transform:translateY(-5px);box-shadow:0 18px 50px rgba(0,0,0,.4)}
+.port-thumb{height:160px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative;overflow:hidden}
+.port-overlay{position:absolute;inset:0;background:rgba(0,230,118,.12);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s;font-size:.85rem;font-weight:700;color:var(--green);letter-spacing:.06em;text-transform:uppercase}
+.port-card:hover .port-overlay{opacity:1}
+.port-info{padding:20px}
+.port-tag{font-size:.7rem;color:var(--green2);font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.port-title{font-family:'Syne',sans-serif;font-size:.98rem;font-weight:700;margin-bottom:6px}
+.port-desc{font-size:.82rem;color:var(--muted);line-height:1.55}
+.port-tech{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.port-tech span{background:rgba(0,230,118,.08);border:1px solid rgba(0,230,118,.18);color:var(--green);padding:2px 9px;border-radius:50px;font-size:.68rem;font-weight:600}
+
+/* ─ PRICING ─ */
+#pricing{background:var(--bg2)}
+.pricing-header{text-align:center;margin-bottom:20px}
+.ptabs{display:flex;gap:9px;justify-content:center;flex-wrap:wrap;margin-bottom:46px}
+.ptab{padding:8px 20px;border-radius:50px;background:var(--card);border:1px solid var(--border);color:var(--muted);font-size:.83rem;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.ptab.active{background:var(--green);color:#000;border-color:var(--green)}
+.p-panel{display:none}
+.p-panel.active{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;max-width:980px;margin:0 auto}
+.p-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:28px 24px;position:relative;transition:transform .3s,box-shadow .3s}
+.p-card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.35)}
+.p-card.pop{border-color:var(--green);box-shadow:0 0 0 1px var(--green),0 20px 56px rgba(0,230,118,.1)}
+.pop-lbl{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--green);color:#000;padding:3px 14px;border-radius:50px;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.p-name{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:11px}
+.p-name.prem{color:var(--gold)}
+.p-val{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:4px}
+.p-period{font-size:.78rem;color:var(--muted);margin-bottom:22px}
+.p-feats{list-style:none;margin-bottom:24px}
+.p-feats li{font-size:.85rem;color:var(--muted);padding:6px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px}
+.p-feats li:last-child{border-bottom:none}
+.p-feats li::before{content:'✓';color:var(--green);font-weight:700;font-size:.82rem;flex-shrink:0}
+.p-feats li.no::before{content:'✕';color:var(--border)}
+.p-feats li.no{opacity:.5}
+.p-cta{display:block;width:100%;text-align:center;padding:11px;border-radius:10px;font-weight:700;font-size:.88rem;transition:all .2s;letter-spacing:.02em;border:none;cursor:pointer;font-family:inherit}
+.p-cta.out{border:1px solid var(--border);color:var(--white);background:transparent}.p-cta.out:hover{border-color:var(--green);color:var(--green)}
+.p-cta.fil{background:var(--green);color:#000}.p-cta.fil:hover{background:var(--green2)}
+.p-cta.gld{background:var(--gold);color:#000}.p-cta.gld:hover{background:#ffa000}
+/* Compare */
+.cmp-wrap{max-width:900px;margin:38px auto 0;overflow-x:auto}
+.cmp-toggle{display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px;font-size:.86rem;color:var(--muted);cursor:pointer;padding:11px;border:1px dashed var(--border);border-radius:10px;transition:border-color .2s}
+.cmp-toggle:hover{border-color:var(--green)}
+.cmp-table{width:100%;border-collapse:collapse;font-size:.83rem;display:none}
+.cmp-table.show{display:table}
+.cmp-table th{padding:11px 14px;background:var(--card);border:1px solid var(--border);font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;text-align:center}
+.cmp-table th:first-child{text-align:left}.cmp-table th.gc{color:var(--green)}.cmp-table th.golc{color:var(--gold)}
+.cmp-table td{padding:9px 14px;border:1px solid var(--border);text-align:center;color:var(--muted)}
+.cmp-table td:first-child{text-align:left;color:var(--white);font-weight:500}
+.cmp-table tr:hover td{background:rgba(255,255,255,.02)}
+.ck{color:var(--green)}.cx{color:var(--border)}
+
+/* ─ PROCESS ─ */
+#process{background:var(--bg)}
+.proc-header{text-align:center;margin-bottom:56px}
+.proc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:24px;max-width:1000px;margin:0 auto}
+.step{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:26px 22px;text-align:center;transition:transform .3s,border-color .3s}
+.step:hover{transform:translateY(-5px);border-color:rgba(0,230,118,.3)}
+.step-n{width:42px;height:42px;border-radius:50%;background:rgba(0,230,118,.12);border:1px solid rgba(0,230,118,.3);color:var(--green);font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.step-t{font-family:'Syne',sans-serif;font-size:.97rem;font-weight:700;margin-bottom:7px}
+.step-d{font-size:.83rem;color:var(--muted);line-height:1.6}
+
+/* ─ TESTIMONIALS ─ */
+#testimonials{background:var(--bg2);overflow:hidden}
+.ts-header{text-align:center;margin-bottom:46px}
+.ts-wrap{overflow:hidden;position:relative}
+.ts-wrap::before,.ts-wrap::after{content:'';position:absolute;top:0;bottom:0;width:80px;z-index:2;pointer-events:none}
+.ts-wrap::before{left:0;background:linear-gradient(90deg,var(--bg2),transparent)}
+.ts-wrap::after{right:0;background:linear-gradient(-90deg,var(--bg2),transparent)}
+.ts-track{display:flex;gap:18px;animation:scrollT 32s linear infinite;width:max-content}
+.ts-track:hover{animation-play-state:paused}
+.ts-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;width:295px;flex-shrink:0;transition:border-color .25s}
+.ts-card:hover{border-color:rgba(0,230,118,.3)}
+.ts-stars{color:var(--gold);font-size:.88rem;margin-bottom:10px;letter-spacing:2px}
+.ts-txt{font-size:.85rem;color:var(--muted);line-height:1.7;margin-bottom:14px;font-style:italic}
+.ts-auth{display:flex;align-items:center;gap:10px}
+.ts-av{width:36px;height:36px;border-radius:50%;background:rgba(0,230,118,.15);display:flex;align-items:center;justify-content:center;font-size:.95rem;font-weight:700;color:var(--green);font-family:'Syne',sans-serif;flex-shrink:0}
+.ts-name{font-size:.85rem;font-weight:700}
+.ts-role{font-size:.74rem;color:var(--muted)}
+@keyframes scrollT{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ─ FAQ ─ */
+#faq{background:var(--bg)}
+.faq-header{text-align:center;margin-bottom:46px}
+.faq-list{max-width:700px;margin:0 auto;display:flex;flex-direction:column;gap:11px}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .25s}
+.faq-item.open{border-color:rgba(0,230,118,.3)}
+.faq-q{display:flex;align-items:center;justify-content:space-between;padding:17px 20px;cursor:pointer;font-weight:600;font-size:.91rem;gap:13px;user-select:none}
+.faq-ic{width:25px;height:25px;border-radius:50%;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.2);display:flex;align-items:center;justify-content:center;color:var(--green);font-size:.95rem;flex-shrink:0;transition:transform .3s}
+.faq-item.open .faq-ic{transform:rotate(45deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease}
+.faq-a-inner{padding:0 20px 16px;font-size:.87rem;color:var(--muted);line-height:1.7}
+.faq-item.open .faq-a{max-height:300px}
+
+/* ─ WHY US ─ */
+#why{background:var(--bg2)}
+.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;max-width:1100px;margin:0 auto}
+.why-l p{color:var(--muted);line-height:1.75;margin-bottom:28px}
+.perks{display:flex;flex-direction:column;gap:13px}
+.perk{display:flex;gap:13px;align-items:flex-start;background:var(--card);border:1px solid var(--border);padding:15px 17px;border-radius:12px;transition:border-color .25s}
+.perk:hover{border-color:rgba(0,230,118,.3)}
+.perk-ico{font-size:1.3rem;flex-shrink:0;margin-top:2px}
+.perk-t strong{font-size:.91rem;display:block;margin-bottom:3px}
+.perk-t span{font-size:.8rem;color:var(--muted)}
+.why-r{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.metric{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px 16px;text-align:center}
+.metric-n{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;margin-bottom:5px}
+.metric-l{font-size:.75rem;color:var(--muted);line-height:1.4}
+
+/* ─ CONTACT ─ */
+#contact{background:var(--bg)}
+.con-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;max-width:1100px;margin:0 auto}
+.con-info p{color:var(--muted);line-height:1.7;margin-bottom:24px}
+.con-items{display:flex;flex-direction:column;gap:11px;margin-bottom:22px}
+.con-item{display:flex;gap:11px;align-items:center;background:var(--card);border:1px solid var(--border);padding:13px 16px;border-radius:11px;text-decoration:none;color:var(--white);transition:border-color .25s,transform .25s}
+.con-item:hover{border-color:var(--green);transform:translateX(4px)}
+.con-ico{width:36px;height:36px;border-radius:9px;background:rgba(0,230,118,.1);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.con-item-info strong{display:block;font-size:.87rem;margin-bottom:2px}
+.con-item-info span{font-size:.77rem;color:var(--muted)}
+.wa-cards{display:flex;flex-direction:column;gap:11px}
+.wa-card{background:linear-gradient(135deg,rgba(37,211,102,.1),rgba(37,211,102,.05));border:1px solid rgba(37,211,102,.25);border-radius:var(--radius);padding:19px 22px;text-decoration:none;color:var(--white);transition:transform .25s,box-shadow .25s;display:flex;align-items:center;gap:13px}
+.wa-card:hover{transform:translateY(-3px);box-shadow:0 12px 38px rgba(37,211,102,.15)}
+.wa-ico{width:44px;height:44px;border-radius:11px;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.wa-info strong{display:block;font-size:.92rem;font-weight:600;margin-bottom:2px}
+.wa-info span{font-size:.78rem;color:var(--muted)}
+/* Quick form */
+.qform{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-top:18px}
+.qform h4{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:16px}
+.f-row{display:flex;flex-direction:column;gap:11px}
+.f-grp{display:flex;flex-direction:column;gap:5px}
+.f-grp label{font-size:.76rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.f-grp input,.f-grp select,.f-grp textarea{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 13px;color:var(--white);font-family:inherit;font-size:.86rem;transition:border-color .2s;outline:none;resize:none}
+.f-grp input:focus,.f-grp select:focus,.f-grp textarea:focus{border-color:var(--green)}
+.f-grp select option{background:var(--card)}
+.f-submit{width:100%;background:var(--green);color:#000;border:none;padding:11px;border-radius:9px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit;transition:background .2s;margin-top:3px}
+.f-submit:hover{background:var(--green2)}
+.f-ok{display:none;text-align:center;padding:18px;color:var(--green);font-weight:600;font-size:.88rem}
+
+/* ─ CTA BANNER ─ */
+#cta-banner{background:linear-gradient(135deg,rgba(0,230,118,.08),rgba(0,191,165,.05));border-top:1px solid rgba(0,230,118,.15);border-bottom:1px solid rgba(0,230,118,.15);padding:76px 5%;text-align:center}
+#cta-banner p{color:var(--muted);margin-bottom:32px;font-size:1.03rem}
+
+/* ─ COOKIE BANNER ─ */
+#cookie-banner{position:fixed;bottom:20px;left:20px;right:20px;max-width:560px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 24px;z-index:990;display:flex;align-items:center;justify-content:space-between;gap:16px;box-shadow:0 10px 40px rgba(0,0,0,.4);transition:transform .4s,opacity .4s}
+#cookie-banner.hide{transform:translateY(20px);opacity:0;pointer-events:none}
+.cookie-txt{font-size:.82rem;color:var(--muted);line-height:1.6}
+.cookie-txt strong{color:var(--white)}
+.cookie-btns{display:flex;gap:8px;flex-shrink:0}
+.ck-accept{background:var(--green);color:#000;border:none;padding:8px 16px;border-radius:50px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit}
+.ck-decline{background:transparent;color:var(--muted);border:1px solid var(--border);padding:8px 14px;border-radius:50px;font-size:.8rem;cursor:pointer;font-family:inherit}
+
+/* ─ WELCOME POPUP ─ */
+#welcome-pop{position:fixed;bottom:30px;right:90px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px 20px;z-index:300;max-width:280px;box-shadow:0 10px 40px rgba(0,0,0,.4);transform:translateY(20px);opacity:0;visibility:hidden;transition:all .4s}
+#welcome-pop.show{transform:translateY(0);opacity:1;visibility:visible}
+.wp-close{position:absolute;top:8px;right:10px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:.9rem}
+.wp-ico{font-size:1.6rem;margin-bottom:8px}
+.wp-title{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:5px}
+.wp-txt{font-size:.8rem;color:var(--muted);line-height:1.5;margin-bottom:12px}
+
+/* ─ BACK TOP / WA FAB ─ */
+#back-top{position:fixed;bottom:100px;right:26px;width:40px;height:40px;border-radius:50%;background:var(--card);border:1px solid var(--border);color:var(--white);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:1rem;z-index:98;opacity:0;visibility:hidden;transition:all .3s;transform:translateY(10px)}
+#back-top.show{opacity:1;visibility:visible;transform:none}
+#back-top:hover{background:var(--green);color:#000;border-color:var(--green)}
+.wa-fab{position:fixed;bottom:26px;right:26px;z-index:200}
+.wa-fab-btn{width:56px;height:56px;border-radius:50%;background:#25D366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:1.55rem;cursor:pointer;box-shadow:0 4px 18px rgba(37,211,102,.5);transition:transform .25s,box-shadow .25s;border:none;animation:waB 3s 3s infinite}
+.wa-fab-btn:hover{transform:scale(1.1);box-shadow:0 8px 28px rgba(37,211,102,.7)}
+@keyframes waB{0%,80%,100%{transform:scale(1)}90%{transform:scale(1.08)}}
+.wa-fab-menu{position:absolute;bottom:68px;right:0;background:var(--card);border:1px solid var(--border);border-radius:15px;padding:11px;width:236px;display:none;flex-direction:column;gap:5px;box-shadow:0 10px 38px rgba(0,0,0,.5)}
+.wa-fab-menu.open{display:flex}
+.wa-fab-menu p{font-size:.71rem;color:var(--muted);padding:5px 10px 3px;font-weight:600;text-transform:uppercase;letter-spacing:.06em}
+.wa-lnk{display:flex;align-items:center;gap:9px;padding:9px 11px;border-radius:9px;text-decoration:none;color:var(--white);transition:background .2s;font-size:.82rem}
+.wa-lnk:hover{background:rgba(37,211,102,.1)}
+
+/* ─ FOOTER ─ */
+footer{background:#050709;padding:44px 5% 28px;border-top:1px solid var(--border)}
+.foot-inner{max-width:1200px;margin:0 auto;display:flex;flex-wrap:wrap;gap:36px;justify-content:space-between;padding-bottom:28px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.foot-brand .logo{margin-bottom:10px}
+.foot-brand p{font-size:.83rem;color:var(--muted);max-width:230px;line-height:1.6}
+.foot-col h4{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:13px}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+.foot-col ul a{font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .2s}
+.foot-col ul a:hover{color:var(--green)}
+.foot-bottom{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:.78rem;color:var(--muted)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* RESPONSIVE */
+@media(max-width:900px){.why-grid,.con-grid,.roi-wrap{grid-template-columns:1fr}}
+@media(max-width:768px){.nav-links{display:none}.hamburger{display:flex}h1{font-size:2.1rem}.hero-stats{gap:24px}.why-r{grid-template-columns:1fr 1fr}.modal-body{padding:16px 16px 24px}.modal-head{padding:16px 16px 0}.quiz-opts{grid-template-columns:1fr}.cursor,.cursor-ring{display:none}}
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="ldr-logo">DIGITALE<span> SOLUTION</span></div>
+  <div class="ldr-bar"><div class="ldr-fill"></div></div>
+  <div class="ldr-pct" id="ldr-pct">0%</div>
+</div>
+
+<!-- PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ANNONCE BAR -->
+<div id="announce-bar">
+  🎉 Offre de lancement : Analyse de vos besoins <strong>100% gratuite</strong> — <a href="https://wa.me/22676127809" target="_blank">Contactez-nous maintenant</a>
+  <button id="announce-close" onclick="document.getElementById('announce-bar').style.display='none'">✕</button>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#hero" class="logo"><div class="logo-dot"></div> DIGITALE SOLUTION</a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#pricing">Tarifs</a></li>
+    <li><a href="#portfolio">Projets</a></li>
+    <li><a href="#testimonials">Avis</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-tools">
+    <button class="theme-btn" id="theme-btn" onclick="toggleTheme()" title="Changer le thème">🌙</button>
+    <a href="#contact" class="nav-cta" style="font-size:.8rem;font-weight:700;padding:8px 18px;border-radius:50px;background:var(--green);color:#000;text-decoration:none;display:inline-flex;gap:6px;align-items:center">Démarrer →</a>
+    <button class="hamburger" id="hbg" onclick="toggleMenu()"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+<div class="mobile-menu" id="mobile-menu">
+  <a href="#services" onclick="closeMenu()">Services</a>
+  <a href="#pricing" onclick="closeMenu()">Tarifs</a>
+  <a href="#portfolio" onclick="closeMenu()">Projets réalisés</a>
+  <a href="#testimonials" onclick="closeMenu()">Avis clients</a>
+  <a href="#faq" onclick="closeMenu()">FAQ</a>
+  <a href="#contact" onclick="closeMenu()">Contact</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="particles-canvas"></canvas>
+  <div class="hero-glow g1"></div>
+  <div class="hero-glow g2"></div>
+  <div class="hero-content">
+    <div class="hero-badge">🚀 Solutions digitales · Ouagadougou, BF</div>
+    <h1>Votre business mérite<br/>d'être <span class="tw" id="tw"></span></h1>
+    <p class="hero-sub">POS, Facturation digitale, Menus QR, Suivi livreur & Apps sur mesure — DIGITALE SOLUTION équipe les commerces de Ouagadougou avec des outils tech performants.</p>
+    <div class="hero-btns">
+      <button class="btn-primary" onclick="openDemo('pos')">▶ Voir une démo</button>
+      <button class="btn-secondary" onclick="document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'})">🎯 Quel plan me convient ?</button>
+      <a href="https://wa.me/22676127809" target="_blank" class="btn-secondary" style="border-color:rgba(37,211,102,.3)">💬 Expert</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="stat-num" data-count="5" data-suf="+">0</div><div class="stat-label">Solutions</div></div>
+      <div class="stat"><div class="stat-num" data-count="3" data-suf="">0</div><div class="stat-label">Plans tarifaires</div></div>
+      <div class="stat"><div class="stat-num" style="color:var(--green)">24h</div><div class="stat-label">Déploiement</div></div>
+      <div class="stat"><div class="stat-num" data-count="100" data-suf="%">0</div><div class="stat-label">Local & adapté</div></div>
+    </div>
+  </div>
+  <div class="scroll-hint"><div class="scroll-mouse"><div class="scroll-wheel"></div></div><span>Découvrir</span></div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker-wrap"><div class="ticker-inner" id="ticker-inner"></div></div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="srv-header reveal">
+    <div class="section-tag">Nos solutions</div>
+    <h2>Ce que nous faisons</h2>
+    <p class="section-desc">Des outils digitaux pensés pour restaurants, hôtels, boutiques et commerces du Burkina Faso.</p>
+  </div>
+  <div class="srv-grid">
+    <div class="srv-card reveal"><div class="srv-icon">🖥️</div><div class="srv-title">Système POS</div><p class="srv-desc">Caisse numérique avec gestion des ventes, stocks, employés et rapports. Interface simple, rapide et Mobile Money intégré.</p><div class="plans-row"><span class="pb start">Start</span><span class="pb standard">Standard</span><span class="pb premium">Premium</span></div><button class="demo-btn" onclick="openDemo('pos')">▶ Voir la démo →</button></div>
+    <div class="srv-card reveal"><div class="srv-icon">🧾</div><div class="srv-title">Facture Digitale</div><p class="srv-desc">Génération de factures pros avec IFU/RCCM, FCFA, multi-caissiers, historique et export PDF. Conforme aux standards BF.</p><div class="plans-row"><span class="pb start">Start</span><span class="pb standard">Standard</span><span class="pb premium">Premium</span></div><button class="demo-btn" onclick="openDemo('facture')">▶ Voir la démo →</button></div>
+    <div class="srv-card reveal"><div class="srv-icon">🛵</div><div class="srv-title">Suivi de Livreur</div><p class="srv-desc">Tracking GPS en temps réel. Assignation des commandes, statuts live et notifications automatiques vers les clients.</p><div class="plans-row"><span class="pb premium">Premium</span></div><button class="demo-btn" onclick="openDemo('livreur')">▶ Voir la démo →</button></div>
+    <div class="srv-card reveal"><div class="srv-icon">📱</div><div class="srv-title">Menu Digital & QR Code</div><p class="srv-desc">Menu interactif par QR code avec photos et commandes WhatsApp. Kiosque tactile et narration vocale en Premium.</p><div class="plans-row"><span class="pb start">Start</span><span class="pb standard">Standard</span><span class="pb premium">Premium</span></div><button class="demo-btn" onclick="openDemo('menu')">▶ Voir la démo →</button></div>
+    <div class="srv-card reveal"><div class="srv-icon">⚙️</div><div class="srv-title">App Sur Mesure</div><p class="srv-desc">PWA, SaaS multi-tenant, portail client, kiosque interactif, dashboard analytics. Full-custom selon votre vision.</p><div class="plans-row"><span class="pb premium">Devis personnalisé</span></div><button class="demo-btn" onclick="openDemo('app')">▶ En savoir plus →</button></div>
+    <div class="srv-card reveal" style="border:1px dashed var(--border);background:transparent;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;min-height:200px"><div style="font-size:2rem">✨</div><p style="color:var(--muted);font-size:.88rem">Besoin spécifique ? Construisons quelque chose ensemble.</p><a href="https://wa.me/22676127809" target="_blank" class="btn-primary" style="font-size:.83rem;padding:9px 20px">Discuter →</a></div>
+  </div>
+</section>
+
+<!-- DEMO MODAL -->
+<div class="modal-ov" id="demo-modal" onclick="handleOv(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="modal-title">Démo interactive</h3>
+      <button class="modal-close" onclick="closeDemo()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="demo-tabs">
+        <button class="dtab active" onclick="sDemo('pos',this)">🖥️ POS</button>
+        <button class="dtab" onclick="sDemo('facture',this)">🧾 Facture</button>
+        <button class="dtab" onclick="sDemo('livreur',this)">🛵 Livreur</button>
+        <button class="dtab" onclick="sDemo('menu',this)">📱 Menu QR</button>
+        <button class="dtab" onclick="sDemo('app',this)">⚙️ Sur Mesure</button>
+      </div>
+      <!-- POS -->
+      <div class="dscr active" id="dscr-pos">
+        <div class="mockup"><div class="mbar"><div class="mdot" style="background:#ff5f56"></div><div class="mdot" style="background:#ffbd2e"></div><div class="mdot" style="background:#27c93f"></div><div class="murl"></div></div>
+          <div class="pos-grid">
+            <div class="pos-item" onclick="addCart('Poulet braisé',3500)"><div class="pi-name">🍗 Poulet braisé</div><div class="pi-price">3 500 F</div></div>
+            <div class="pos-item" onclick="addCart('Riz sauce',2000)"><div class="pi-name">🍛 Riz sauce</div><div class="pi-price">2 000 F</div></div>
+            <div class="pos-item" onclick="addCart('Bissap',500)"><div class="pi-name">🥤 Bissap</div><div class="pi-price">500 F</div></div>
+            <div class="pos-item" onclick="addCart('Tô',1500)"><div class="pi-name">🍲 Tô</div><div class="pi-price">1 500 F</div></div>
+          </div>
+          <div class="pos-cart"><div class="pc-title">🛒 Panier</div><div id="cart-items"><div style="color:var(--muted);font-size:.76rem;text-align:center;padding:7px">Cliquez sur un article ↑</div></div><div class="pc-total"><span>Total</span><span id="cart-tot">0 FCFA</span></div></div>
+        </div>
+        <p class="ddesc">Cliquez sur les articles pour les ajouter au panier. Calcul automatique, paiement Mobile Money et impression reçus thermiques inclus.</p>
+        <div class="dfeat"><span class="dft">Mobile Money</span><span class="dft">Impression thermique</span><span class="dft">Multi-caissiers</span><span class="dft">Rapports temps réel</span></div>
+        <div class="dcta"><a href="https://wa.me/22676127809?text=Je%20veux%20le%20POS" target="_blank" class="btn-primary" style="font-size:.86rem;padding:10px 22px">Commander →</a></div>
+      </div>
+      <!-- FACTURE -->
+      <div class="dscr" id="dscr-facture">
+        <div class="mockup"><div class="mbar"><div class="mdot" style="background:#ff5f56"></div><div class="mdot" style="background:#ffbd2e"></div><div class="mdot" style="background:#27c93f"></div><div class="murl"></div></div>
+          <div class="inv-prev"><div class="inv-hd"><div><div class="inv-title">FACTURE N° 2025-0042</div><div class="inv-meta">IFU : 00123456B · RCCM : BF-OUA-2022-B-5678</div></div><div style="text-align:right"><div style="font-weight:800;font-size:.82rem">MON ENTREPRISE SARL</div><div class="inv-meta">Karpala, Ouagadougou</div><div class="inv-meta">20/03/2025</div></div></div>
+          <table class="inv-tbl"><tr><th>Désignation</th><th>Qté</th><th>P.U</th><th>Total</th></tr><tr><td>Poulet braisé</td><td>2</td><td>3 500</td><td>7 000 F</td></tr><tr><td>Riz sauce</td><td>3</td><td>2 000</td><td>6 000 F</td></tr><tr><td>Bissap</td><td>4</td><td>500</td><td>2 000 F</td></tr></table>
+          <div class="inv-tot">Total TTC : 15 000 FCFA</div></div>
+        </div>
+        <p class="ddesc">Factures pros conformes aux normes BF avec IFU/RCCM, multi-caissiers PIN, historique complet et export PDF en un clic.</p>
+        <div class="dfeat"><span class="dft">IFU / RCCM</span><span class="dft">Export PDF</span><span class="dft">FCFA natif</span><span class="dft">Firebase Cloud</span></div>
+        <div class="dcta"><a href="https://wa.me/22676127809?text=Je%20veux%20la%20facturation%20digitale" target="_blank" class="btn-primary" style="font-size:.86rem;padding:10px 22px">Commander →</a></div>
+      </div>
+      <!-- LIVREUR -->
+      <div class="dscr" id="dscr-livreur">
+        <div class="mockup"><div class="mbar"><div class="mdot" style="background:#ff5f56"></div><div class="mdot" style="background:#ffbd2e"></div><div class="mdot" style="background:#27c93f"></div><div class="murl"></div></div>
+          <div class="lv-map"><div class="lv-route"></div><div class="lv-icon">🛵</div></div>
+          <div class="lv-rows"><div class="lv-row"><div class="lv-dot-live"></div><div class="lv-txt"><strong>Moussa K.</strong> — Livraison en cours</div><div class="lv-time">~8 min</div></div><div class="lv-row"><div style="width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0"></div><div class="lv-txt"><strong>Ali T.</strong> — En route</div><div class="lv-time">~15 min</div></div><div class="lv-row"><div style="width:7px;height:7px;border-radius:50%;background:var(--muted);flex-shrink:0"></div><div class="lv-txt"><strong>Fatima S.</strong> — Disponible</div><div class="lv-time">En attente</div></div></div>
+        </div>
+        <p class="ddesc">Suivi GPS en temps réel. Les clients reçoivent des notifications automatiques à chaque étape. Dashboard pour gérer tous vos livreurs.</p>
+        <div class="dfeat"><span class="dft">GPS Temps réel</span><span class="dft">Notifications auto</span><span class="dft">Multi-livreurs</span><span class="dft">Historique</span></div>
+        <div class="dcta"><a href="https://wa.me/22676127809?text=Je%20veux%20le%20suivi%20livreur" target="_blank" class="btn-primary" style="font-size:.86rem;padding:10px 22px">Commander →</a></div>
+      </div>
+      <!-- MENU -->
+      <div class="dscr" id="dscr-menu">
+        <div class="mockup"><div class="mbar"><div class="mdot" style="background:#ff5f56"></div><div class="mdot" style="background:#ffbd2e"></div><div class="mdot" style="background:#27c93f"></div><div class="murl"></div></div>
+          <div class="mnu-grid">
+            <div class="mnu-item"><div class="mnu-thumb">🍗</div><div class="mnu-info"><div class="mnu-name">Poulet braisé</div><div class="mnu-price">3 500 F</div></div></div>
+            <div class="mnu-item"><div class="mnu-thumb">🍛</div><div class="mnu-info"><div class="mnu-name">Riz sauce</div><div class="mnu-price">2 000 F</div></div></div>
+            <div class="mnu-item"><div class="mnu-thumb">🥩</div><div class="mnu-info"><div class="mnu-name">Brochettes</div><div class="mnu-price">1 500 F</div></div></div>
+            <div class="mnu-item"><div class="mnu-thumb">🥤</div><div class="mnu-info"><div class="mnu-name">Bissap</div><div class="mnu-price">500 F</div></div></div>
+            <div class="mnu-item"><div class="mnu-thumb">🍺</div><div class="mnu-info"><div class="mnu-name">Bière locale</div><div class="mnu-price">800 F</div></div></div>
+            <div class="mnu-item" style="opacity:.5"><div class="mnu-thumb">+</div><div class="mnu-info"><div class="mnu-name">Et plus…</div><div class="mnu-price">illimité</div></div></div>
+          </div>
+        </div>
+        <p class="ddesc">QR scannable pour consulter la carte et commander via WhatsApp. Version kiosque avec narration vocale disponible en Premium.</p>
+        <div class="dfeat"><span class="dft">QR Code</span><span class="dft">Commande WhatsApp</span><span class="dft">Kiosque tactile</span><span class="dft">TTS vocal</span></div>
+        <div class="dcta"><a href="https://wa.me/22676127809?text=Je%20veux%20le%20menu%20QR" target="_blank" class="btn-primary" style="font-size:.86rem;padding:10px 22px">Commander →</a></div>
+      </div>
+      <!-- APP -->
+      <div class="dscr" id="dscr-app">
+        <div class="mockup" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:13px;min-height:200px"><div style="font-size:3rem">⚙️</div><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:800">App 100% Sur Mesure</div><p style="color:var(--muted);font-size:.84rem;max-width:400px;line-height:1.6">Kiosques interactifs, SaaS multi-tenant, POS avancés, systèmes de commande en ligne — déjà livrés à Ouagadougou.</p></div>
+        <p class="ddesc">Chaque projet commence par une analyse gratuite de vos besoins. Architecture adaptée, délai réaliste, tarif transparent.</p>
+        <div class="dfeat"><span class="dft">PWA / Mobile</span><span class="dft">SaaS multi-tenant</span><span class="dft">Firebase</span><span class="dft">Livraison rapide</span></div>
+        <div class="dcta"><a href="https://wa.me/22676127809?text=Je%20veux%20une%20app%20sur%20mesure" target="_blank" class="btn-primary" style="font-size:.86rem;padding:10px 22px">Demander un devis →</a></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<section id="quiz-section">
+  <div style="text-align:center;margin-bottom:48px" class="reveal">
+    <div class="section-tag">Trouver mon plan</div>
+    <h2>Quel plan vous convient ?</h2>
+    <p class="section-desc" style="margin:0 auto">Répondez à 3 questions et nous vous recommandons la formule idéale.</p>
+  </div>
+  <div class="quiz-wrap reveal">
+    <div id="quiz-inner">
+      <div class="quiz-prog" id="quiz-prog"></div>
+      <div class="quiz-q" id="quiz-question"></div>
+      <div class="quiz-opts" id="quiz-opts"></div>
+      <div class="quiz-skip"><span class="q-step" id="q-step"></span></div>
+    </div>
+    <div class="quiz-result" id="quiz-result">
+      <div class="qr-badge" id="qr-badge"></div>
+      <div class="qr-plan" id="qr-plan"></div>
+      <div class="qr-desc" id="qr-desc"></div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <a id="qr-cta" href="#" target="_blank" class="btn-primary" style="font-size:.88rem;padding:11px 24px">Commander ce plan →</a>
+        <button class="quiz-back" onclick="resetQuiz()">Recommencer le quiz</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROI CALCULATOR -->
+<section id="roi">
+  <div class="roi-wrap">
+    <div class="roi-left reveal">
+      <div class="section-tag">Calculateur ROI</div>
+      <h2>Combien pouvez-vous gagner ?</h2>
+      <p>Estimez vos gains en temps et en chiffre d'affaires grâce à la digitalisation de votre business.</p>
+      <div class="roi-sliders">
+        <div class="roi-row"><label>Ventes par jour <span id="ventes-val">20</span></label><input type="range" id="ventes" min="5" max="200" value="20" oninput="updateROI()"/></div>
+        <div class="roi-row"><label>Panier moyen (FCFA) <span id="panier-val">3 000</span></label><input type="range" id="panier" min="500" max="50000" step="500" value="3000" oninput="updateROI()"/></div>
+        <div class="roi-row"><label>Erreurs/pertes par semaine <span id="erreurs-val">5</span></label><input type="range" id="erreurs" min="0" max="30" value="5" oninput="updateROI()"/></div>
+      </div>
+    </div>
+    <div class="roi-right reveal">
+      <div style="font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">Gain mensuel estimé</div>
+      <div class="roi-num" id="roi-total">+ 285 000 F</div>
+      <div class="roi-sub">En combinant gains de temps, réduction des erreurs et hausse des ventes grâce au digital.</div>
+      <div class="roi-breakdown">
+        <div class="roi-br-row"><span>Réduction erreurs/mois</span><span id="roi-err">– 20 000 F</span></div>
+        <div class="roi-br-row"><span>Hausse ventes estimée (+15%)</span><span id="roi-ventes">+ 270 000 F</span></div>
+        <div class="roi-br-row"><span>Temps économisé (valeur)</span><span id="roi-temps">~40h</span></div>
+        <div class="roi-br-row"><span>💰 Total estimé / mois</span><span id="roi-total2">+ 285 000 F</span></div>
+      </div>
+      <a href="https://wa.me/22676127809?text=Je%20veux%20digitaliser%20mon%20business" target="_blank" class="btn-primary" style="width:100%;justify-content:center;margin-top:20px;font-size:.88rem">Démarrer maintenant →</a>
+    </div>
+  </div>
+</section>
+
+<!-- PORTFOLIO -->
+<section id="portfolio">
+  <div class="port-header reveal">
+    <div class="section-tag">Projets réalisés</div>
+    <h2>Ce que nous avons livré</h2>
+    <p class="section-desc" style="margin:0 auto">Aperçu de quelques solutions déployées pour des commerces de Ouagadougou.</p>
+  </div>
+  <div class="port-grid" id="port-grid"></div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="pricing-header reveal">
+    <div class="section-tag">Tarifs</div>
+    <h2>Choisissez votre plan</h2>
+    <p class="section-desc" style="margin:0 auto">Des formules claires pour chaque étape de croissance.</p>
+  </div>
+  <div class="ptabs reveal">
+    <button class="ptab active" onclick="showTab('pos',this)">POS</button>
+    <button class="ptab" onclick="showTab('fac',this)">Facture Digitale</button>
+    <button class="ptab" onclick="showTab('mnu',this)">Menu Digital</button>
+    <button class="ptab" onclick="showTab('apx',this)">App Sur Mesure</button>
+  </div>
+  <!-- POS -->
+  <div id="tab-pos" class="p-panel active">
+    <div class="p-card"><div class="p-name">Start</div><div class="p-val">Sur devis</div><div class="p-period">Installation + abonnement</div><ul class="p-feats"><li>Caisse basique</li><li>Gestion des ventes</li><li>1 caissier</li><li>Tickets de caisse</li><li class="no">Gestion des stocks</li><li class="no">Multi-utilisateurs</li><li class="no">Rapports avancés</li></ul><button class="p-cta out" onclick="openWA('POS Start')">Demander un devis</button></div>
+    <div class="p-card pop"><div class="pop-lbl">Populaire</div><div class="p-name">Standard</div><div class="p-val">Sur devis</div><div class="p-period">Installation + abonnement</div><ul class="p-feats"><li>Tout le plan Start</li><li>Gestion des stocks</li><li>3 caissiers</li><li>Rapports & statistiques</li><li>Export PDF/CSV</li><li class="no">Multi-sites</li><li class="no">API et intégrations</li></ul><button class="p-cta fil" onclick="openWA('POS Standard')">Demander un devis</button></div>
+    <div class="p-card"><div class="p-name prem">Premium</div><div class="p-val">Sur devis</div><div class="p-period">Installation + abonnement</div><ul class="p-feats"><li>Tout le plan Standard</li><li>Multi-sites / Multi-users</li><li>Mobile Money intégré</li><li>Suivi livreur intégré</li><li>Support prioritaire</li><li>API & intégrations</li><li>Dashboard analytique</li></ul><button class="p-cta gld" onclick="openWA('POS Premium')">Demander un devis</button></div>
+  </div>
+  <!-- FACTURE -->
+  <div id="tab-fac" class="p-panel">
+    <div class="p-card"><div class="p-name">Start</div><div class="p-val">Sur devis</div><div class="p-period">Paiement unique ou mensuel</div><ul class="p-feats"><li>Facturation de base</li><li>Logo & coordonnées</li><li>Export PDF</li><li>1 utilisateur</li><li class="no">IFU/RCCM</li><li class="no">Multi-caissiers</li><li class="no">Firebase Cloud</li></ul><button class="p-cta out" onclick="openWA('Facture Start')">Demander un devis</button></div>
+    <div class="p-card pop"><div class="pop-lbl">Recommandé</div><div class="p-name">Standard</div><div class="p-val">Sur devis</div><div class="p-period">Paiement unique ou mensuel</div><ul class="p-feats"><li>Tout le plan Start</li><li>IFU / RCCM intégré</li><li>Multi-caissiers (3)</li><li>Historique complet</li><li>Clients & fournisseurs</li><li class="no">PIN sécurisé</li><li class="no">Firebase Cloud</li></ul><button class="p-cta fil" onclick="openWA('Facture Standard')">Demander un devis</button></div>
+    <div class="p-card"><div class="p-name prem">Premium</div><div class="p-val">Sur devis</div><div class="p-period">Paiement unique ou mensuel</div><ul class="p-feats"><li>Tout le plan Standard</li><li>PIN sécurisé par caissier</li><li>Firebase Cloud backup</li><li>Dashboard propriétaire</li><li>Rapports avancés</li><li>Support prioritaire</li><li>Utilisateurs illimités</li></ul><button class="p-cta gld" onclick="openWA('Facture Premium')">Demander un devis</button></div>
+  </div>
+  <!-- MENU -->
+  <div id="tab-mnu" class="p-panel">
+    <div class="p-card"><div class="p-name">Start</div><div class="p-val">Sur devis</div><div class="p-period">Mise en place + hébergement</div><ul class="p-feats"><li>Menu QR statique</li><li>Jusqu'à 20 articles</li><li>Design personnalisé</li><li>URL unique</li><li class="no">Commandes WhatsApp</li><li class="no">Mise à jour autonome</li><li class="no">Kiosque interactif</li></ul><button class="p-cta out" onclick="openWA('Menu Start')">Demander un devis</button></div>
+    <div class="p-card pop"><div class="pop-lbl">Populaire</div><div class="p-name">Standard</div><div class="p-val">Sur devis</div><div class="p-period">Mise en place + hébergement</div><ul class="p-feats"><li>Menu QR dynamique</li><li>Articles illimités</li><li>Commandes WhatsApp</li><li>Mise à jour autonome</li><li>Galerie photos</li><li class="no">Kiosque interactif</li><li class="no">Narration vocale TTS</li></ul><button class="p-cta fil" onclick="openWA('Menu Standard')">Demander un devis</button></div>
+    <div class="p-card"><div class="p-name prem">Premium</div><div class="p-val">Sur devis</div><div class="p-period">Mise en place + hébergement</div><ul class="p-feats"><li>Tout le plan Standard</li><li>Kiosque interactif</li><li>Narration vocale TTS</li><li>Animations & musique</li><li>Analytique & stats</li><li>Intégration POS</li><li>Support dédié</li></ul><button class="p-cta gld" onclick="openWA('Menu Premium')">Demander un devis</button></div>
+  </div>
+  <!-- APP -->
+  <div id="tab-apx" class="p-panel">
+    <div class="p-card" style="grid-column:1/-1;max-width:580px;margin:0 auto;text-align:center"><div class="srv-icon" style="margin:0 auto 18px">⚙️</div><div class="p-name" style="text-align:center">Application Sur Mesure</div><p style="color:var(--muted);font-size:.88rem;line-height:1.7;margin:10px 0 24px">PWA, SaaS multi-tenant, portail client, kiosque interactif…<br/><br/>Chaque projet est unique. Contactez-nous pour un devis basé sur vos besoins réels.</p><ul class="p-feats" style="text-align:left;margin-bottom:24px"><li>Analyse des besoins offerte</li><li>Développement 100% sur mesure</li><li>Technologies modernes (PWA, Firebase…)</li><li>Livraison rapide</li><li>Maintenance incluse selon contrat</li><li>Hébergement possible inclus</li></ul><button class="p-cta gld" onclick="openWA('App sur mesure')">Demander un devis personnalisé →</button></div>
+  </div>
+  <!-- Compare -->
+  <div class="cmp-wrap reveal">
+    <div class="cmp-toggle" onclick="toggleCmp()"><strong>Comparer tous les plans en détail</strong> <span id="cmp-arrow">▼</span></div>
+    <table class="cmp-table" id="cmp-table">
+      <thead><tr><th>Fonctionnalité</th><th>Start</th><th class="gc">Standard ⭐</th><th class="golc">Premium 👑</th></tr></thead>
+      <tbody>
+        <tr><td>Interface POS / Facturation</td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Nombre de caissiers</td><td>1</td><td>3</td><td>Illimité</td></tr>
+        <tr><td>Gestion des stocks</td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Export PDF / CSV</td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>IFU / RCCM</td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Firebase / Cloud</td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Mobile Money intégré</td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Suivi livreur GPS</td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>Support prioritaire</td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+        <tr><td>API & intégrations</td><td><span class="cx">✕</span></td><td><span class="cx">✕</span></td><td><span class="ck">✓</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PROCESS -->
+<section id="process">
+  <div class="proc-header reveal">
+    <div class="section-tag">Comment ça marche</div>
+    <h2>Démarrer en 4 étapes simples</h2>
+    <p class="section-desc" style="margin:0 auto">De la première discussion à la mise en ligne.</p>
+  </div>
+  <div class="proc-grid">
+    <div class="step reveal"><div class="step-n">01</div><div class="step-t">Prise de contact</div><p class="step-d">Discutez de votre projet via WhatsApp ou sur place à Karpala. Analyse gratuite de vos besoins.</p></div>
+    <div class="step reveal"><div class="step-n">02</div><div class="step-t">Devis & Validation</div><p class="step-d">Solution adaptée avec un devis clair et transparent. Aucun coût caché, aucune surprise.</p></div>
+    <div class="step reveal"><div class="step-n">03</div><div class="step-t">Développement</div><p class="step-d">Notre équipe développe votre solution en intégrant vos contenus, couleurs et spécificités.</p></div>
+    <div class="step reveal"><div class="step-n">04</div><div class="step-t">Déploiement & Support</div><p class="step-d">Mise en production, formation et support continu pour votre succès.</p></div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section id="testimonials">
+  <div class="ts-header reveal">
+    <div class="section-tag">Témoignages</div>
+    <h2>Ils nous font confiance</h2>
+    <p class="section-desc" style="margin:0 auto">Les commerçants de Ouagadougou parlent de leur expérience.</p>
+  </div>
+  <div class="ts-wrap reveal"><div class="ts-track" id="ts-track"></div></div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="faq-header reveal">
+    <div class="section-tag">Questions fréquentes</div>
+    <h2>Tout ce que vous devez savoir</h2>
+    <p class="section-desc" style="margin:0 auto">Vous ne trouvez pas ? Contactez-nous sur WhatsApp.</p>
+  </div>
+  <div class="faq-list" id="faq-list"></div>
+</section>
+
+<!-- WHY US -->
+<section id="why">
+  <div class="why-grid">
+    <div class="why-l reveal">
+      <div class="section-tag">Pourquoi nous choisir</div>
+      <h2>Technologie locale, expertise mondiale</h2>
+      <p>DIGITALE SOLUTION est né à Ouagadougou pour répondre aux besoins réels des commerces burkinabés. Nous parlons votre langue, connaissons vos contraintes et livrons des solutions qui fonctionnent vraiment sur le terrain.</p>
+      <div class="perks">
+        <div class="perk"><div class="perk-ico">🇧🇫</div><div class="perk-t"><strong>100% Adapté au Burkina</strong><span>FCFA, Orange/Moov Money, WhatsApp, réalité locale intégrée.</span></div></div>
+        <div class="perk"><div class="perk-ico">⚡</div><div class="perk-t"><strong>Déploiement express</strong><span>Votre solution opérationnelle en 24 à 72h selon la complexité.</span></div></div>
+        <div class="perk"><div class="perk-ico">🔒</div><div class="perk-t"><strong>Données sécurisées</strong><span>Firebase, authentification PIN, accès multi-niveaux et backup cloud.</span></div></div>
+        <div class="perk"><div class="perk-ico">📞</div><div class="perk-t"><strong>Support réactif</strong><span>3 numéros WhatsApp disponibles pour un support rapide et personnalisé.</span></div></div>
+      </div>
+    </div>
+    <div class="why-r reveal">
+      <div class="metric" style="border-color:rgba(0,230,118,.25)"><div class="metric-n" style="color:var(--green)" data-count="5" data-suf="+">0</div><div class="metric-l">Solutions digitales disponibles</div></div>
+      <div class="metric"><div class="metric-n" style="color:var(--green2)">24h</div><div class="metric-l">Délai de mise en ligne express</div></div>
+      <div class="metric"><div class="metric-n" style="color:#4fc3f7" data-count="3" data-suf="">0</div><div class="metric-l">Plans tarifaires adaptés</div></div>
+      <div class="metric" style="border-color:rgba(255,179,0,.25)"><div class="metric-n" style="color:var(--gold)" data-count="100" data-suf="%">0</div><div class="metric-l">Satisfaction client garantie</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="con-grid">
+    <div class="con-info reveal">
+      <div class="section-tag">Nous contacter</div>
+      <h2>Parlons de votre projet</h2>
+      <p>Basés à Karpala, Ouagadougou. Disponibles sur WhatsApp tous les jours pour démarrer votre transformation digitale.</p>
+      <div class="con-items">
+        <div class="con-item"><div class="con-ico">📍</div><div class="con-item-info"><strong>Localisation</strong><span>Karpala, Ouagadougou – Burkina Faso</span></div></div>
+        <div class="con-item"><div class="con-ico">🕐</div><div class="con-item-info"><strong>Disponibilité</strong><span>Lun – Sam · 8h00 – 20h00</span></div></div>
+        <div class="con-item"><div class="con-ico">💼</div><div class="con-item-info"><strong>Services</strong><span>POS · Facturation · Menu QR · App Sur Mesure</span></div></div>
+      </div>
+      <div class="qform">
+        <h4>📩 Message rapide</h4>
+        <div id="qf-body">
+          <div class="f-row">
+            <div class="f-grp"><label>Votre nom</label><input type="text" id="fn" placeholder="Ex : Koné Ibrahim"/></div>
+            <div class="f-grp"><label>Service souhaité</label><select id="fs"><option value="">Choisir un service</option><option>Système POS</option><option>Facture Digitale</option><option>Menu Digital & QR Code</option><option>Suivi de Livreur</option><option>App Sur Mesure</option></select></div>
+            <div class="f-grp"><label>Message</label><textarea id="fm" rows="3" placeholder="Décrivez brièvement votre besoin…"></textarea></div>
+            <button class="f-submit" onclick="sendForm()">Envoyer via WhatsApp →</button>
+          </div>
+        </div>
+        <div class="f-ok" id="f-ok">✅ Redirection vers WhatsApp…</div>
+      </div>
+    </div>
+    <div class="wa-cards reveal">
+      <p style="color:var(--muted);font-size:.88rem;margin-bottom:14px">Contactez-nous directement :</p>
+      <a href="https://wa.me/22676127809?text=Bonjour%20DIGITALE%20SOLUTION%20!" target="_blank" class="wa-card"><div class="wa-ico">💬</div><div class="wa-info"><strong>+226 76 12 78 09</strong><span>Contact principal · Réponse rapide</span></div></a>
+      <a href="https://wa.me/22678548317?text=Bonjour%20DIGITALE%20SOLUTION%20!" target="_blank" class="wa-card"><div class="wa-ico">💬</div><div class="wa-info"><strong>+226 78 54 83 17</strong><span>Support technique & commercial</span></div></a>
+      <a href="https://wa.me/22671682239?text=Bonjour%20DIGITALE%20SOLUTION%20!" target="_blank" class="wa-card"><div class="wa-ico">💬</div><div class="wa-info"><strong>+226 71 68 22 39</strong><span>Devis & projets sur mesure</span></div></a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section id="cta-banner">
+  <div class="section-tag" style="display:inline-block;margin-bottom:14px">Prêt à démarrer ?</div>
+  <h2 class="reveal">Votre business mérite le meilleur<br/>du numérique 🇧🇫</h2>
+  <p class="reveal">Rejoignez les commerces de Ouagadougou qui font confiance à DIGITALE SOLUTION.</p>
+  <div class="hero-btns reveal">
+    <a href="https://wa.me/22676127809?text=Bonjour%2C%20je%20veux%20digitaliser%20mon%20business%20!" target="_blank" class="btn-primary">💬 Commencer maintenant</a>
+    <button class="btn-secondary" onclick="openDemo('pos')">▶ Voir une démo</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <div class="foot-brand"><a href="#hero" class="logo"><div class="logo-dot"></div> DIGITALE SOLUTION</a><p>Solutions digitales modernes pour les commerces du Burkina Faso.</p></div>
+    <div class="foot-col"><h4>Services</h4><ul><li><a href="#services">Système POS</a></li><li><a href="#services">Facture Digitale</a></li><li><a href="#services">Suivi Livreur</a></li><li><a href="#services">Menu Digital QR</a></li><li><a href="#services">App Sur Mesure</a></li></ul></div>
+    <div class="foot-col"><h4>Contact</h4><ul><li><a href="https://wa.me/22676127809" target="_blank">+226 76 12 78 09</a></li><li><a href="https://wa.me/22678548317" target="_blank">+226 78 54 83 17</a></li><li><a href="https://wa.me/22671682239" target="_blank">+226 71 68 22 39</a></li><li><a>Karpala, Ouagadougou</a></li></ul></div>
+    <div class="foot-col"><h4>Plans</h4><ul><li><a href="#pricing">Start</a></li><li><a href="#pricing">Standard</a></li><li><a href="#pricing">Premium</a></li><li><a href="#pricing">Sur Mesure</a></li></ul></div>
+  </div>
+  <div class="foot-bottom"><span>© 2025 DIGITALE SOLUTION – Ouagadougou, Burkina Faso</span><span>Fait avec ❤️ au Burkina 🇧🇫</span></div>
+</footer>
+
+<!-- BACK TOP -->
+<div id="back-top" onclick="scrollTo({top:0,behavior:'smooth'})">↑</div>
+
+<!-- COOKIE BANNER -->
+<div id="cookie-banner">
+  <div class="cookie-txt"><strong>🍪 Cookies & Vie privée</strong><br/>Ce site utilise des cookies pour améliorer votre expérience. Vos données restent confidentielles.</div>
+  <div class="cookie-btns"><button class="ck-accept" onclick="acceptCookies()">Accepter</button><button class="ck-decline" onclick="declineCookies()">Refuser</button></div>
+</div>
+
+<!-- WELCOME POPUP -->
+<div id="welcome-pop">
+  <button class="wp-close" onclick="closeWelcome()">✕</button>
+  <div class="wp-ico">👋</div>
+  <div class="wp-title">Bienvenue !</div>
+  <div class="wp-txt">Vous cherchez à digitaliser votre business ? Notre équipe est disponible maintenant.</div>
+  <a href="https://wa.me/22676127809?text=Bonjour%20%21%20Je%20suis%20sur%20votre%20site%20et%20je%20voudrais%20en%20savoir%20plus." target="_blank" class="btn-primary" style="font-size:.8rem;padding:9px 18px;width:100%;justify-content:center">Chatter maintenant 💬</a>
+</div>
+
+<!-- WA FAB -->
+<div class="wa-fab">
+  <div class="wa-fab-menu" id="wa-menu">
+    <p>Nous contacter</p>
+    <a href="https://wa.me/22676127809" target="_blank" class="wa-lnk"><span>💬</span><span>+226 76 12 78 09</span></a>
+    <a href="https://wa.me/22678548317" target="_blank" class="wa-lnk"><span>💬</span><span>+226 78 54 83 17</span></a>
+    <a href="https://wa.me/22671682239" target="_blank" class="wa-lnk"><span>💬</span><span>+226 71 68 22 39</span></a>
+  </div>
+  <button class="wa-fab-btn" onclick="toggleWA()">💬</button>
+</div>
+
+<script>
+/* ═══ CURSOR ═══ */
+const cur=document.getElementById('cursor'),ring=document.getElementById('cursor-ring');
+document.addEventListener('mousemove',e=>{cur.style.left=e.clientX+'px';cur.style.top=e.clientY+'px';setTimeout(()=>{ring.style.left=e.clientX+'px';ring.style.top=e.clientY+'px';},60);});
+document.querySelectorAll('a,button,.srv-card,.p-card,.port-card,.faq-item').forEach(el=>{el.addEventListener('mouseenter',()=>{cur.style.width='28px';cur.style.height='28px';cur.style.opacity='.5';});el.addEventListener('mouseleave',()=>{cur.style.width='16px';cur.style.height='16px';cur.style.opacity='.7';});});
+
+/* ═══ LOADER ═══ */
+let pct=0;const pEl=document.getElementById('ldr-pct');
+const lt=setInterval(()=>{pct+=Math.floor(Math.random()*12)+3;if(pct>=100){pct=100;clearInterval(lt);setTimeout(()=>{document.getElementById('loader').classList.add('hide');startTW();animCounts();initParticles();setTimeout(showWelcome,5000);},300);}pEl.textContent=pct+'%';},80);
+
+/* ═══ THEME TOGGLE ═══ */
+function toggleTheme(){const b=document.body,btn=document.getElementById('theme-btn');b.classList.toggle('light');btn.textContent=b.classList.contains('light')?'🌙':'☀️';}
+
+/* ═══ TYPEWRITER ═══ */
+const words=['connecté','digitalisé','modernisé','performant','optimisé'];
+let wi=0,ci=0,del=false;
+function startTW(){const el=document.getElementById('tw');function t(){const w=words[wi];if(!del){el.textContent=w.slice(0,++ci);if(ci===w.length){del=true;setTimeout(t,1500);return;}}else{el.textContent=w.slice(0,--ci);if(ci===0){del=false;wi=(wi+1)%words.length;}}setTimeout(t,del?65:95);}t();}
+
+/* ═══ TICKER ═══ */
+const TI=['🖥️ Système POS','🧾 Facture Digitale','🛵 Suivi Livreur','📱 Menu Digital QR','⚙️ App Sur Mesure','🇧🇫 Ouagadougou','💳 Mobile Money','🔒 Firebase Sécurisé','⚡ Déploiement 24h','✅ 100% Local BF'];
+const ti=document.getElementById('ticker-inner');
+ti.innerHTML=[...TI,...TI].map(x=>`<div class="ticker-item"><div class="dot"></div>${x}</div>`).join('');
+
+/* ═══ PARTICLES ═══ */
+function initParticles(){const canvas=document.getElementById('particles-canvas');const ctx=canvas.getContext('2d');let W=canvas.width=canvas.offsetWidth,H=canvas.height=canvas.offsetHeight;window.addEventListener('resize',()=>{W=canvas.width=canvas.offsetWidth;H=canvas.height=canvas.offsetHeight;});const pts=Array.from({length:55},()=>({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+.5,vx:(Math.random()-.5)*.4,vy:(Math.random()-.5)*.4}));function draw(){ctx.clearRect(0,0,W,H);pts.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>W)p.vx*=-1;if(p.y<0||p.y>H)p.vy*=-1;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle='rgba(0,230,118,.5)';ctx.fill();});pts.forEach((a,i)=>pts.slice(i+1).forEach(b=>{const d=Math.hypot(a.x-b.x,a.y-b.y);if(d<100){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.strokeStyle=`rgba(0,230,118,${.15*(1-d/100)})`;ctx.lineWidth=.6;ctx.stroke();}}));requestAnimationFrame(draw);}draw();}
+
+/* ═══ SCROLL ═══ */
+window.addEventListener('scroll',()=>{const s=scrollY,h=document.documentElement.scrollHeight-innerHeight;document.getElementById('progress-bar').style.width=(s/h*100)+'%';document.getElementById('back-top').classList.toggle('show',s>400);document.getElementById('navbar').classList.toggle('scrolled',s>60);});
+const obs=new IntersectionObserver(entries=>{entries.forEach((e,i)=>{if(e.isIntersecting){setTimeout(()=>e.target.classList.add('visible'),i*80);obs.unobserve(e.target);}});},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(r=>obs.observe(r));
+
+/* ═══ COUNTERS ═══ */
+function animCounts(){document.querySelectorAll('[data-count]').forEach(el=>{const t=+el.dataset.count,suf=el.dataset.suf||'';let n=0;const iv=setInterval(()=>{n=Math.min(n+Math.ceil(t/40),t);el.textContent=n+suf;if(n>=t)clearInterval(iv);},40);});}
+
+/* ═══ DEMO MODAL ═══ */
+const DTITLES={pos:'🖥️ Démo – Système POS',facture:'🧾 Démo – Facture Digitale',livreur:'🛵 Démo – Suivi Livreur',menu:'📱 Démo – Menu Digital QR',app:'⚙️ Application Sur Mesure'};
+function openDemo(id){document.getElementById('demo-modal').classList.add('open');document.body.style.overflow='hidden';sDemoTo(id);}
+function closeDemo(){document.getElementById('demo-modal').classList.remove('open');document.body.style.overflow='';}
+function handleOv(e){if(e.target===document.getElementById('demo-modal'))closeDemo();}
+function sDemo(id,btn){document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));btn.classList.add('active');sDemoTo(id);}
+function sDemoTo(id){document.querySelectorAll('.dscr').forEach(s=>s.classList.remove('active'));const s=document.getElementById('dscr-'+id);if(s)s.classList.add('active');document.getElementById('modal-title').textContent=DTITLES[id]||'Démo';document.querySelectorAll('.dtab').forEach(t=>{t.classList.toggle('active',t.getAttribute('onclick').includes("'"+id+"'"));});}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDemo();});
+
+/* ═══ POS CART ═══ */
+let cart=[],cartTot=0;
+function addCart(nm,pr){cartTot+=pr;const ex=cart.find(i=>i.n===nm);ex?ex.q++:cart.push({n:nm,p:pr,q:1});renderCart();showToast('✅ '+nm+' ajouté !');}
+function renderCart(){const el=document.getElementById('cart-items');if(!cart.length){el.innerHTML='<div style="color:var(--muted);font-size:.76rem;text-align:center;padding:6px">Panier vide</div>';document.getElementById('cart-tot').textContent='0 FCFA';return;}el.innerHTML=cart.map(i=>`<div class="pc-item"><span>${i.n} ×${i.q}</span><span style="color:var(--green)">${(i.p*i.q).toLocaleString('fr')} F</span></div>`).join('');document.getElementById('cart-tot').textContent=cartTot.toLocaleString('fr')+' FCFA';}
+
+/* ═══ QUIZ ═══ */
+const QUIZ=[
+  {q:'Quel est votre type de commerce ?',opts:['Restaurant / Bar / Café','Boutique / Superette','Hôtel / Résidence','Autre commerce']},
+  {q:'Quelle est la priorité pour vous ?',opts:['Gérer mes ventes & caisse','Faire des factures pros','Présenter mes produits en ligne','Livrer et tracker mes commandes']},
+  {q:'Combien avez-vous d\'employés ?',opts:['Je travaille seul','2 à 5 employés','6 à 15 employés','Plus de 15 employés']},
+];
+const RESULTS=[
+  {plan:'Plan Start',badge:'🌱',desc:'Idéal pour démarrer : caisse simple, facturation de base ou menu QR statique. La solution la plus accessible pour tester le digital.',color:'#6b7a90',wa:'Je%20suis%20intéressé%20par%20le%20plan%20Start'},
+  {plan:'Plan Standard',badge:'⭐',desc:'Le plan le plus populaire. Gestion des stocks, multi-caissiers, commandes WhatsApp et rapports. Le parfait équilibre entre fonctionnalités et coût.',color:'#00bfa5',wa:'Je%20suis%20intéressé%20par%20le%20plan%20Standard'},
+  {plan:'Plan Premium',badge:'👑',desc:'La solution complète : Mobile Money, suivi livreur GPS, Firebase cloud, API et support prioritaire. Pour les commerces ambitieux.',color:'#ffb300',wa:'Je%20suis%20intéressé%20par%20le%20plan%20Premium'},
+  {plan:'App Sur Mesure',badge:'⚙️',desc:'Votre business nécessite une solution unique. Contactez-nous pour un devis personnalisé et nous construirons quelque chose ensemble.',color:'#00e676',wa:'Je%20veux%20une%20app%20sur%20mesure'},
+];
+let qi=0,answers=[];
+function initQuiz(){qi=0;answers=[];renderQuiz();}
+function renderQuiz(){const q=QUIZ[qi];document.getElementById('quiz-question').textContent=q.q;document.getElementById('q-step').textContent=`Question ${qi+1} / ${QUIZ.length}`;const prog=document.getElementById('quiz-prog');prog.innerHTML=QUIZ.map((_,i)=>`<div class="qp-dot ${i<=qi?'done':''}"></div>`).join('');document.getElementById('quiz-opts').innerHTML=q.opts.map((o,i)=>`<button class="qopt" onclick="pickOpt(${i})">${o}</button>`).join('');}
+function pickOpt(i){document.querySelectorAll('.qopt').forEach((b,j)=>b.classList.toggle('sel',j===i));answers.push(i);setTimeout(()=>{qi++;if(qi<QUIZ.length)renderQuiz();else showQuizResult();},400);}
+function showQuizResult(){let score=0;answers.forEach(a=>{if(a>=2)score++;});if(answers[1]===3)score=3;else if(score===0)score=0;else if(score===1)score=1;else score=2;const r=RESULTS[Math.min(score,3)];document.getElementById('quiz-inner').style.display='none';const res=document.getElementById('quiz-result');res.style.display='block';document.getElementById('qr-badge').textContent=r.badge;document.getElementById('qr-plan').textContent=r.plan;document.getElementById('qr-plan').style.color=r.color;document.getElementById('qr-desc').textContent=r.desc;document.getElementById('qr-cta').href='https://wa.me/22676127809?text=Bonjour%20DIGITALE%20SOLUTION%20!%20'+r.wa;showToast('🎯 Plan trouvé : '+r.plan+'!');}
+function resetQuiz(){qi=0;answers=[];document.getElementById('quiz-inner').style.display='block';document.getElementById('quiz-result').style.display='none';renderQuiz();}
+initQuiz();
+
+/* ═══ ROI CALCULATOR ═══ */
+function updateROI(){const v=+document.getElementById('ventes').value;const p=+document.getElementById('panier').value;const e=+document.getElementById('erreurs').value;document.getElementById('ventes-val').textContent=v;document.getElementById('panier-val').textContent=p.toLocaleString('fr');document.getElementById('erreurs-val').textContent=e;const errCost=e*1500*4;const salesGain=Math.round(v*p*30*.15);const timeVal=Math.round(v*.3*30/60);const total=errCost+salesGain;document.getElementById('roi-err').textContent='– '+errCost.toLocaleString('fr')+' F';document.getElementById('roi-ventes').textContent='+ '+salesGain.toLocaleString('fr')+' F';document.getElementById('roi-temps').textContent='~'+timeVal+'h';document.getElementById('roi-total').textContent='+ '+total.toLocaleString('fr')+' F';document.getElementById('roi-total2').textContent='+ '+total.toLocaleString('fr')+' F';}
+updateROI();
+
+/* ═══ PORTFOLIO ═══ */
+const ports=[
+  {emoji:'🖥️',bg:'linear-gradient(135deg,#0d2040,#0a3020)',tag:'Système POS',title:'Restaurant Integral Bar & Café',desc:'POS complet avec kiosque interactif, narration vocale TTS et commandes WhatsApp.',techs:['Firebase','PWA','TTS','WhatsApp']},
+  {emoji:'🧾',bg:'linear-gradient(135deg,#1a0d30,#0d1a30)',tag:'Facturation',title:'FacturePro BF',desc:'Système de facturation multi-caissiers avec IFU/RCCM, dashboard propriétaire et export PDF.',techs:['Firebase','Multi-PIN','PDF Export']},
+  {emoji:'🛒',bg:'linear-gradient(135deg,#1a1a0d,#0d2020)',tag:'SaaS Multi-tenant',title:'Africa Commerce Cloud',desc:'Plateforme SaaS multi-tenant supportant restaurants, hôtels et boutiques avec licences.',techs:['SaaS','Multi-tenant','Licences']},
+  {emoji:'📱',bg:'linear-gradient(135deg,#0d1a1a,#0a2020)',tag:'Menu Digital',title:'Menu QR Grâce Divine',desc:'Menu QR dynamique avec commandes WhatsApp, gestion admin et impression Bluetooth.',techs:['QR Code','WhatsApp','Bluetooth']},
+  {emoji:'🏪',bg:'linear-gradient(135deg,#1a1000,#0d1800)',tag:'Boutique en ligne',title:'PhoneTech Ouaga',desc:'Vitrine multi-produits avec super admin panel, GPS et gestion des stocks.',techs:['Firebase','GPS','Admin Panel']},
+  {emoji:'⚙️',bg:'linear-gradient(135deg,#0d0d1a,#0d1a0d)',tag:'App Sur Mesure',title:'Votre prochain projet',desc:'Nous construisons votre solution idéale. Contactez-nous pour démarrer.',techs:['Sur Mesure','Devis gratuit']},
+];
+document.getElementById('port-grid').innerHTML=ports.map((p,i)=>`<div class="port-card reveal" onclick="${i<5?'openDemo(\'pos\')':'openWA(\'App sur mesure\')'}"><div class="port-thumb" style="background:${p.bg}">${p.emoji}<div class="port-overlay">Voir la démo ▶</div></div><div class="port-info"><div class="port-tag">${p.tag}</div><div class="port-title">${p.title}</div><div class="port-desc">${p.desc}</div><div class="port-tech">${p.techs.map(t=>`<span>${t}</span>`).join('')}</div></div></div>`).join('');
+document.querySelectorAll('.port-card.reveal').forEach(r=>obs.observe(r));
+
+/* ═══ TESTIMONIALS ═══ */
+const TST=[
+  {n:'Aminata D.',r:'Restaurant, Ouagadougou',s:5,t:'Le menu digital a changé notre façon de travailler. Les clients scannent, commandent et on gagne un temps fou. Je recommande à 100%.'},
+  {n:'Salif K.',r:'Boutique, Karpala',s:5,t:'Mon système de facturation est maintenant très professionnel. Mes clients sont impressionnés. Service rapide et très réactif !'},
+  {n:'Fatou B.',r:'Hôtel, Ouaga 2000',s:5,t:'La caisse POS fonctionne même sans connexion. Tout configuré en moins de 24h. Excellent rapport qualité/prix.'},
+  {n:'Ibrahim T.',r:'Restaurant, Pissy',s:5,t:'Le suivi livreur en temps réel a réduit nos réclamations clients de moitié. Nos livreurs sont beaucoup plus efficaces.'},
+  {n:'Marie-Claire O.',r:'Café, Gounghin',s:5,t:'Menu QR + commandes WhatsApp directement — exactement ce dont j\'avais besoin. Simple pour mes clients et pour moi !'},
+  {n:'Oumar S.',r:'Commerce, Tampouy',s:4,t:'L\'application sur mesure est parfaite pour notre boutique. Support très disponible. Je les recommande sans hésiter.'},
+];
+document.getElementById('ts-track').innerHTML=[...TST,...TST].map(d=>`<div class="ts-card"><div class="ts-stars">${'★'.repeat(d.s)}${'☆'.repeat(5-d.s)}</div><p class="ts-txt">"${d.t}"</p><div class="ts-auth"><div class="ts-av">${d.n[0]}</div><div><div class="ts-name">${d.n}</div><div class="ts-role">${d.r}</div></div></div></div>`).join('');
+
+/* ═══ FAQ ═══ */
+const FAQS=[
+  {q:'Combien de temps pour déployer ma solution ?',a:'Entre 24h (menu QR simple) et 5-7 jours (app sur mesure). Le POS et la facturation sont opérationnels en 48h.'},
+  {q:'Ça fonctionne sans connexion internet ?',a:'Oui ! La plupart de nos solutions fonctionnent hors-ligne avec synchronisation automatique dès que la connexion est rétablie.'},
+  {q:'Comment se fait la prise en main par mon équipe ?',a:'Nous assurons une formation complète lors du déploiement. Nos interfaces sont intuitives même pour des utilisateurs peu familiers du numérique.'},
+  {q:'Quels modes de paiement acceptez-vous ?',a:'Mobile Money (Orange, Moov, Coris), virements bancaires et espèces sur place à Ouagadougou.'},
+  {q:'Puis-je changer de plan plus tard ?',a:'Oui ! Vous commencez au plan Start et montez en puissance. Migration simple, données conservées.'},
+  {q:'Proposez-vous un support après la livraison ?',a:'Oui, support via WhatsApp et suivi régulier. Les plans Standard et Premium bénéficient d\'un support prioritaire.'},
+  {q:'Mes données sont-elles sécurisées ?',a:'Vos données sont sur Firebase (Google) avec authentification PIN, accès par rôle et sauvegarde automatique.'},
+  {q:'Puis-je voir une démo avant d\'acheter ?',a:'Oui ! Testez les démos interactives sur ce site, ou contactez-nous pour une démo personnalisée en direct.'},
+];
+document.getElementById('faq-list').innerHTML=FAQS.map((f,i)=>`<div class="faq-item reveal" id="fq${i}"><div class="faq-q" onclick="tFaq(${i})"><span>${f.q}</span><div class="faq-ic">+</div></div><div class="faq-a"><div class="faq-a-inner">${f.a}</div></div></div>`).join('');
+document.querySelectorAll('.faq-item').forEach(r=>obs.observe(r));
+function tFaq(i){const it=document.getElementById('fq'+i);const was=it.classList.contains('open');document.querySelectorAll('.faq-item').forEach(x=>x.classList.remove('open'));if(!was)it.classList.add('open');}
+
+/* ═══ PRICING TABS ═══ */
+function showTab(t,btn){document.querySelectorAll('.p-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.ptab').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');if(btn)btn.classList.add('active');}
+
+/* ═══ COMPARE ═══ */
+function toggleCmp(){const t=document.getElementById('cmp-table');const s=!t.classList.contains('show');t.classList.toggle('show',s);document.getElementById('cmp-arrow').textContent=s?'▲':'▼';}
+
+/* ═══ MOBILE MENU ═══ */
+function toggleMenu(){document.getElementById('hbg').classList.toggle('open');document.getElementById('mobile-menu').classList.toggle('open');}
+function closeMenu(){document.getElementById('hbg').classList.remove('open');document.getElementById('mobile-menu').classList.remove('open');}
+
+/* ═══ WA FAB ═══ */
+function toggleWA(){document.getElementById('wa-menu').classList.toggle('open');}
+document.addEventListener('click',e=>{if(!e.target.closest('.wa-fab'))document.getElementById('wa-menu').classList.remove('open');});
+
+/* ═══ QUICK FORM ═══ */
+function sendForm(){const n=document.getElementById('fn').value.trim();const s=document.getElementById('fs').value;const m=document.getElementById('fm').value.trim();if(!n||!s){showToast('⚠️ Remplissez nom et service','error');return;}const txt=`Bonjour DIGITALE SOLUTION ! Je suis ${n}, intéressé(e) par : ${s}.${m?' Message : '+m:''}`;document.getElementById('f-ok').style.display='block';document.getElementById('qf-body').style.opacity='.3';setTimeout(()=>open('https://wa.me/22676127809?text='+encodeURIComponent(txt),'_blank'),600);}
+
+/* ═══ WA OPEN ═══ */
+function openWA(plan){open('https://wa.me/22676127809?text='+encodeURIComponent('Bonjour DIGITALE SOLUTION ! Je suis intéressé(e) par : '+plan+'. Pouvez-vous me donner un devis ?'),'_blank');}
+
+/* ═══ TOAST ═══ */
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.classList.remove('show'),2700);}
+
+/* ═══ COOKIE ═══ */
+function acceptCookies(){document.getElementById('cookie-banner').classList.add('hide');setTimeout(()=>document.getElementById('cookie-banner').remove(),500);showToast('✅ Cookies acceptés !');}
+function declineCookies(){document.getElementById('cookie-banner').classList.add('hide');setTimeout(()=>document.getElementById('cookie-banner').remove(),500);}
+
+/* ═══ WELCOME POPUP ═══ */
+function showWelcome(){if(!sessionStorage.getItem('wp'))document.getElementById('welcome-pop').classList.add('show');}
+function closeWelcome(){document.getElementById('welcome-pop').classList.remove('show');sessionStorage.setItem('wp','1');}
+
+/* ═══ ACTIVE NAV ═══ */
+const sections=document.querySelectorAll('section[id]');
+window.addEventListener('scroll',()=>{let cur='';sections.forEach(s=>{if(scrollY>=s.offsetTop-120)cur=s.id;});document.querySelectorAll('.nav-links a').forEach(a=>{a.classList.toggle('active-nav',a.getAttribute('href')==='#'+cur);});});
+</script>
+</body>
+</html>
